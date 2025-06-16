@@ -1,6 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
-import Mainapp from "../pages/Mainapp";
+import Mainapp from "../pages/main/Mainapp";
+import ProtectedRoute from "../components/auth/ProtectedRoute";
+import TokenExpiredPage from "../pages/err/tokenExpirado/TokenExpirado";
 
 const rotas = createBrowserRouter([
     {
@@ -8,8 +10,17 @@ const rotas = createBrowserRouter([
         element: <App />
     },
     {
-        path: "/main",
-        element: <Mainapp />
+        path: "/tokenExpirado",
+        element: <TokenExpiredPage />
+    },
+    {
+        element: <ProtectedRoute redirectPath="/tokenExpirado" />,
+        children: [
+            {
+                path: "/main",
+                element: <Mainapp />
+            }
+        ]
     }
 ]);
 

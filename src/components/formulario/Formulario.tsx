@@ -1,14 +1,36 @@
 import { useState, type FormEvent } from "react";
 import FormField from "./inputs/FormFields";
+import { useNavigate } from "react-router-dom";
+
+import API_BASE_URL from "../../config/apiConfig";
+import axios from 'axios';
 
 function Formulario() {
     const [nome, setNome] = useState('');
     const [senha, setSenha] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const navigate = useNavigate();
 
-    function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault(); 
-        console.log('Formulário enviado do componente Formulario:', { nome, senha });
-        
+
+        try {
+            const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+                nome,
+                senha
+            });
+
+            if (response.data && response.data.access_token) {
+                localStorage.setItem('authToken', response.data.access_token);
+                navigate('/main');
+            }
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                setErrorMessage('Acesso negado. Verifique suas credenciais.');
+            } else {
+                console.error('Erro na requisição (axios):', error);
+            }
+        }
     }
 
     function clearForm() {
@@ -37,6 +59,9 @@ function Formulario() {
               required
               autoComplete="current-password"
             />
+            {errorMessage && (
+                <p className="text-red-500 text-sm">{errorMessage}</p>
+            )}
             <div className="flex justify-evenly pt-4">
               <button
                 type="submit"
